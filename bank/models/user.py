@@ -1,3 +1,9 @@
+# this class represents a user that has accounts
+# it can create accounts , close accounts , deposit , withdraw , and get the balance
+# it can list the accounts
+# it can get the account details
+
+
 class User:
     USER_ID = 0
     def __init__(self,user_name,password,email):

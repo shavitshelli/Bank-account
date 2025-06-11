@@ -1,3 +1,8 @@
+#this class represents a savings account that a user has , it can direct to the user by owner_id
+# it has interest rate , minimum balance , withdraw limit per period , withdraw count , and a balance
+# it can withdraw , deposit , add interest , reset withdraw count , and get the minimum balance
+
+
 from account import Account,AccountType
 class SavingsAccount(Account):
     def __init__(self, account_name, owner_id, initial_balance=0.0):

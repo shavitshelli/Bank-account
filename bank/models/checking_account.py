@@ -1,3 +1,6 @@
+# this class represents a checking account that a user has , it can direct to the user by owner_id
+# it has an overdraft limit , and a balance
+
 from account import Account,AccountType
 
 class CheckingAccount(Account):
