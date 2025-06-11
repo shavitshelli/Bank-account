@@ -3,6 +3,8 @@
 # it can list the accounts
 # it can get the account details
 
+from checking_account import CheckingAccount
+from savings_account import SavingsAccount
 
 class User:
     USER_ID = 0
@@ -36,13 +38,13 @@ class User:
         if initial_deposit < 0:
             raise ValueError("Initial deposit must be positive")
         if account_type == "checking":
-            pass
+            account = CheckingAccount(account_name, self.user_id, initial_deposit)
         elif account_type == "savings":
-            pass
+            account = SavingsAccount(account_name, self.user_id, initial_deposit)
         else:
             raise ValueError("Invalid account type")
-        # self.accounts.append(account)
-        # return account
+        self.accounts.append(account)
+        return account
     
     def close_account(self,account_name):
         if not self.__account_exists(account_name):
