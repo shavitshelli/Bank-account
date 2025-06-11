@@ -24,7 +24,7 @@ class Account:
         self.account_name = account_name
         self.owner = owner_id
         self.balance = initial_balance
-        self.status = "ACTIVE"
+        self.status = Status.ACTIVE
         self.transactions = []
         self.account_type = None
         self.__creation_date = time.time()
@@ -32,7 +32,7 @@ class Account:
     def deposit(self, amount):
         if amount <= 0:
             raise ValueError("deposit must be positive")
-        if self.status != "ACTIVE":
+        if self.status != Status.ACTIVE:
             raise ValueError("can't deposit to a disabled account")
         self.balance += amount
         self.transactions.append(f"deposit:{amount}")
@@ -40,18 +40,18 @@ class Account:
     def withdraw(self, amount):
         if amount <= 0:
             raise ValueError("withdraw must be positive")
-        if self.status != "ACTIVE":
+        if self.status != Status.ACTIVE:
             raise ValueError("can't withdraw from a disabled account")
-        if self.balance < amount:
-            raise ValueError("insufficient balance")
-        self.balance -= amount
-        self.transactions.append(f"withdraw:{amount}")
     
     def diactivate(self):
-        self.status = "DISABLED"
+        if self.status == Status.DISABLED:
+            raise ValueError("account is already disabled")
+        self.status = Status.DISABLED
     
     def activate(self):
-        self.status = "ACTIVE"
+        if self.status == Status.ACTIVE:
+            raise ValueError("account is already active")
+        self.status = Status.ACTIVE
     
     def get_account_type(self):
         raise NotImplementedError("subclass must implement this method")
@@ -78,46 +78,4 @@ class Account:
     @property
     def transactions(self):
         return self.transactions
-    
-
-class CheckingAccount(Account):
-    def __init__(self, account_name, owner_id, initial_balance=0.0):
-        super().__init__(account_name, owner_id, initial_balance)
-        self.account_type = AccountType.CHECKING
-        self.overdraft_limit = 1000.0  # Example overdraft limit
-
-    def withdraw(self, amount):
-        if amount <= 0:
-            raise ValueError("withdraw must be positive")
-        if self.status != "ACTIVE":
-            raise ValueError("can't withdraw from a disabled account")
-        if self.balance + self.overdraft_limit < amount:
-            raise ValueError("insufficient balance and overdraft limit")
-        self.balance -= amount
-        self.transactions.append(f"withdraw:{amount}")
-
-class SavingsAccount(Account):
-    def __init__(self, account_name, owner_id, initial_balance=0.0):
-        super().__init__(account_name, owner_id, initial_balance)
-        self.account_type = AccountType.SAVINGS
-        self.interest_rate = 0.02  # 2% interest rate
-        self.minimum_balance = 100.0
-
-    def withdraw(self, amount):
-        if amount <= 0:
-            raise ValueError("withdraw must be positive")
-        if self.status != "ACTIVE":
-            raise ValueError("can't withdraw from a disabled account")
-        if self.balance - amount < self.minimum_balance:
-            raise ValueError(f"withdrawal would bring balance below minimum required {self.minimum_balance}")
-        if self.balance < amount:
-            raise ValueError("insufficient balance")
-        self.balance -= amount
-        self.transactions.append(f"withdraw:{amount}")
-
-    def add_interest(self):
-        if self.status == "ACTIVE":
-            interest = self.balance * self.interest_rate
-            self.balance += interest
-            self.transactions.append(f"interest:{interest}")
 
