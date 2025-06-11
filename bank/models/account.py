@@ -1,8 +1,14 @@
 import time
 from enum import Enum
+
 class Status(Enum):
     ACTIVE = "active"
     DISABLED = "disabled"
+
+class AccountType(Enum):
+    CHECKING = "checking"
+    SAVINGS = "savings"
+
 #This class represents an account that a user has , it can direct to the user by owner_id
 #It has a balance and a status , it can be active or disabled
 #It can be a checking or savings account
@@ -14,68 +20,104 @@ class Status(Enum):
 
 
 class Account:
-    def __init__(self,account_name,owner_id,balance):
-        self._account_name = account_name
-        self.__owner = owner_id 
-        self.__balance = balance
+    def __init__(self, account_name, owner_id, initial_balance=0.0):
+        self.account_name = account_name
+        self.owner = owner_id
+        self.balance = initial_balance
+        self.status = "ACTIVE"
+        self.transactions = []
+        self.account_type = None
         self.__creation_date = time.time()
-        self.__transactions = []
-        self.__status = Status.ACTIVE
     
-    def deposit(self,amount):
-        if self.__status == Status.DISABLED:
-            raise ValueError("can't deposit to a disabled account")
-        if amount < 0:
+    def deposit(self, amount):
+        if amount <= 0:
             raise ValueError("deposit must be positive")
-        self.__balance += amount
-        self.__transactions.append(f"deposit:{amount}")
+        if self.status != "ACTIVE":
+            raise ValueError("can't deposit to a disabled account")
+        self.balance += amount
+        self.transactions.append(f"deposit:{amount}")
     
-    def withdraw(self,amount):
-        if self.__status == Status.DISABLED:
+    def withdraw(self, amount):
+        if amount <= 0:
+            raise ValueError("withdraw must be positive")
+        if self.status != "ACTIVE":
             raise ValueError("can't withdraw from a disabled account")
-        if amount < 0:
-            raise ValueError("withdrawal must be positive")
-        if amount >self.__balance:
+        if self.balance < amount:
             raise ValueError("insufficient balance")
-        self.__balance-=amount
-        self.__transactions.append(f"withdraw:{amount}")
+        self.balance -= amount
+        self.transactions.append(f"withdraw:{amount}")
     
     def diactivate(self):
-        if self.__status == Status.ACTIVE:
-            self.__status = Status.DISABLED
-        else:
-            raise ValueError("can't disable an already disabled account")
+        self.status = "DISABLED"
     
     def activate(self):
-        if self.__status == Status.DISABLED:
-            self.__status = Status.ACTIVE
-        else:
-            raise ValueError("can't activate an already active account")
+        self.status = "ACTIVE"
     
     def get_account_type(self):
         raise NotImplementedError("subclass must implement this method")
     
     def account_summary(self):
-        return f"Account Name: {self._account_name}\nOwner: {self.__owner}\nBalance: {self.__balance}\nStatus: {self.__status}\nTransactions: {self.__transactions}"
+        return f"Account Name: {self.account_name}\nOwner: {self.owner}\nBalance: {self.balance}\nStatus: {self.status}\nTransactions: {self.transactions}"
 
     @property
-    def balance(self):
-        return self.__balance
+    def creation_date(self):
+        return self.__creation_date
     
     @property
     def status(self):
-        return self.__status
+        return self.status
     
     @property
     def owner(self):
-        return self.__owner
+        return self.owner
     
     @property
     def account_name(self):
-        return self._account_name
+        return self.account_name
     
     @property
     def transactions(self):
-        return self.__transactions
+        return self.transactions
     
+
+class CheckingAccount(Account):
+    def __init__(self, account_name, owner_id, initial_balance=0.0):
+        super().__init__(account_name, owner_id, initial_balance)
+        self.account_type = AccountType.CHECKING
+        self.overdraft_limit = 1000.0  # Example overdraft limit
+
+    def withdraw(self, amount):
+        if amount <= 0:
+            raise ValueError("withdraw must be positive")
+        if self.status != "ACTIVE":
+            raise ValueError("can't withdraw from a disabled account")
+        if self.balance + self.overdraft_limit < amount:
+            raise ValueError("insufficient balance and overdraft limit")
+        self.balance -= amount
+        self.transactions.append(f"withdraw:{amount}")
+
+class SavingsAccount(Account):
+    def __init__(self, account_name, owner_id, initial_balance=0.0):
+        super().__init__(account_name, owner_id, initial_balance)
+        self.account_type = AccountType.SAVINGS
+        self.interest_rate = 0.02  # 2% interest rate
+        self.minimum_balance = 100.0
+
+    def withdraw(self, amount):
+        if amount <= 0:
+            raise ValueError("withdraw must be positive")
+        if self.status != "ACTIVE":
+            raise ValueError("can't withdraw from a disabled account")
+        if self.balance - amount < self.minimum_balance:
+            raise ValueError(f"withdrawal would bring balance below minimum required {self.minimum_balance}")
+        if self.balance < amount:
+            raise ValueError("insufficient balance")
+        self.balance -= amount
+        self.transactions.append(f"withdraw:{amount}")
+
+    def add_interest(self):
+        if self.status == "ACTIVE":
+            interest = self.balance * self.interest_rate
+            self.balance += interest
+            self.transactions.append(f"interest:{interest}")
 
