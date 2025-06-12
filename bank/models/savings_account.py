@@ -4,6 +4,7 @@
 
 
 from account import Account,AccountType
+from transaction_factory import TransactionFactory
 class SavingsAccount(Account):
     def __init__(self, account_name, owner_id, initial_balance=0.0):
         super().__init__(account_name, owner_id, initial_balance)
@@ -24,7 +25,7 @@ class SavingsAccount(Account):
         if self.withdraw_count >= self.withdraw_limit_per_period:
             raise ValueError("Can't withdraw more than the limit per period")
         self.balance -= amount
-        self.transactions.append(f"withdraw:{amount}")
+        self.transactions.append(TransactionFactory.create_withdraw(amount, self.account_name))
         self.withdraw_count += 1
 
     def get_account_type(self):

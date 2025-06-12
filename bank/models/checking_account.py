@@ -2,6 +2,7 @@
 # it has an overdraft limit , and a balance
 
 from account import Account,AccountType
+from transaction_factory import TransactionFactory
 
 class CheckingAccount(Account):
     OVERDRAFT_LIMIT = 1000
@@ -17,7 +18,7 @@ class CheckingAccount(Account):
         if self.balance - amount < -self.OVERDRAFT_LIMIT:
             raise ValueError(f"Can't withdraw more than the overdraft limit of {self.OVERDRAFT_LIMIT}")
         self.balance -= amount
-        self.transactions.append(f"withdraw:{amount}")
+        self.transactions.append(TransactionFactory.create_withdraw(amount, self.account_name))
 
     def get_account_type(self):
         return AccountType.CHECKING

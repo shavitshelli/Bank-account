@@ -5,6 +5,7 @@
 
 from checking_account import CheckingAccount
 from savings_account import SavingsAccount
+from account import AccountType
 
 class User:
     USER_ID = 0
@@ -37,9 +38,9 @@ class User:
             raise ValueError("This account already exists")
         if initial_deposit < 0:
             raise ValueError("Initial deposit must be positive")
-        if account_type == "checking":
+        if account_type == AccountType.CHECKING:
             account = CheckingAccount(account_name, self.user_id, initial_deposit)
-        elif account_type == "savings":
+        elif account_type == AccountType.SAVINGS:
             account = SavingsAccount(account_name, self.user_id, initial_deposit)
         else:
             raise ValueError("Invalid account type")
