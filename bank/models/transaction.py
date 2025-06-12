@@ -22,7 +22,8 @@ class Transaction:
         self._amount = amount
         self.transaction_type = transaction_type
         self.account_name = account_name
-        self.date = datetime.now()
+        self.__date = datetime.now()
+        self.__status = TransactionStatus.PENDING
     
     def get_transaction_type(self):
         return self.transaction_type
@@ -34,9 +35,22 @@ class Transaction:
     def get_account_name(self):
         return self.account_name
     
-    def get_date(self):
-        return self.date
+    @property
+    def date(self):
+        return self.__date
     
     def get_id(self):
         return self.id
+    
+    @property
+    def status(self):
+        return self.__status
+    
+    @status.setter
+    def status(self, status):
+        self.__status = status
+
+   
+    
+
     

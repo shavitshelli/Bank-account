@@ -61,5 +61,10 @@ class User:
             raise ValueError(f"Account {account_name} does not exist")
         return self.__accounts[account_name].balance
     
+    def get_account(self, account_name):
+        if not self.__account_exists(account_name):
+            raise ValueError(f"Account {account_name} does not exist")
+        return self.__accounts[account_name]
+    
     
 

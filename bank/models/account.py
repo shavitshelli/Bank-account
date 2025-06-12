@@ -1,5 +1,6 @@
 import time
 from enum import Enum
+from transaction_factory import TransactionFactory
 
 class Status(Enum):
     ACTIVE = "active"
@@ -24,8 +25,8 @@ class Account:
         self.account_name = account_name
         self.owner = owner_id
         self.balance = initial_balance
-        self.status = Status.ACTIVE
-        self.transactions = []
+        self.__status = Status.ACTIVE
+        self.__transactions = []
         self.account_type = None
         self.__creation_date = time.time()
     
@@ -35,7 +36,7 @@ class Account:
         if self.status != Status.ACTIVE:
             raise ValueError("can't deposit to a disabled account")
         self.balance += amount
-        self.transactions.append(f"deposit:{amount}")
+        self.transactions.append(TransactionFactory.create_deposit(amount, self.account_name))
     
     def withdraw(self, amount):
         if amount <= 0:
@@ -67,15 +68,8 @@ class Account:
     def status(self):
         return self.status
     
-    @property
-    def owner(self):
-        return self.owner
-    
-    @property
-    def account_name(self):
-        return self.account_name
     
     @property
     def transactions(self):
-        return self.transactions
+        return self.__transactions
 
